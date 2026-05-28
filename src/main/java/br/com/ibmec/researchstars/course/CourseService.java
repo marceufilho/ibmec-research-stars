@@ -1,8 +1,10 @@
 package br.com.ibmec.researchstars.course;
 
 import br.com.ibmec.researchstars.common.exception.DuplicateResourceException;
+import br.com.ibmec.researchstars.common.exception.ResourceNotFoundException;
 import br.com.ibmec.researchstars.course.dto.CourseDto;
 import br.com.ibmec.researchstars.course.dto.CreateCourseRequest;
+import br.com.ibmec.researchstars.course.dto.UpdateCourseRequest;
 import br.com.ibmec.researchstars.course.mapper.CourseMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +47,31 @@ public class CourseService {
     }
     Course saved = courseRepository.save(courseMapper.toEntity(request));
     return courseMapper.toDto(saved);
+  }
+
+  /** Edita um curso existente. Restrito a ADMIN (RF-25). */
+  public CourseDto update(Long id, UpdateCourseRequest request) {
+    Course course =
+        courseRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Course not found: " + id));
+
+    String code = request.code().trim();
+    if (courseRepository.existsByCodeIgnoreCaseAndIdNot(code, id)) {
+      throw new DuplicateResourceException("Course code already in use: " + code);
+    }
+
+    course.setName(request.name().trim());
+    course.setCode(code);
+    return courseMapper.toDto(course);
+  }
+
+  /** Exclui um curso existente. Restrito a ADMIN (RF-25). */
+  public void delete(Long id) {
+    if (!courseRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Course not found: " + id);
+    }
+    courseRepository.deleteById(id);
   }
 }
 
