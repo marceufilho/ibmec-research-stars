@@ -40,3 +40,10 @@ node_modules/
 
 ### Mac OS ###
 .DS_Store
+
+### Banco de dados SQLite (runtime) ###
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+!data/.gitkeep

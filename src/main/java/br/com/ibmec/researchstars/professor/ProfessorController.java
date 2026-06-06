@@ -33,15 +33,14 @@ public class ProfessorController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public PagedResponse<ProfessorListItemResponse> list(
-        @RequestParam(required = false) Professor.Status status,
-        @RequestParam(required = false) String q,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size
-    ) {
+            @RequestParam(required = false) Professor.Status status,
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         return service.list(status, q, page, size);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]+}")
     @PreAuthorize("hasRole('ADMIN')")
     public ProfessorDetailResponse getById(@PathVariable Long id) {
         return service.findById(id);
@@ -53,26 +52,26 @@ public class ProfessorController {
         return service.findMe();
     }
 
-    @PostMapping("/{id}/approve")
+    @PostMapping("/{id:[0-9]+}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ProfessorApproveResponse approve(@PathVariable Long id) {
         return service.approve(id);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id:[0-9]+}")
     @PreAuthorize("hasRole('ADMIN')")
     public ProfessorDetailResponse update(@PathVariable Long id, @Valid @RequestBody ProfessorUpdateRequest request) {
         return service.update(id, request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:[0-9]+}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
 
-    @GetMapping("/{id}/publications")
+    @GetMapping("/{id:[0-9]+}/publications")
     @PreAuthorize("hasRole('ADMIN')")
     public ProfessorPublicationsResponse publications(@PathVariable Long id) {
         return service.findProfessorPublications(id);

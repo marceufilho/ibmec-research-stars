@@ -28,14 +28,12 @@ public class PublicationController {
     // GET /publications — Admin (RF-14, RF-20)
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar todas as publicações (Admin)",
-            description = "Suporta filtros ?status=, ?professorId=, ?q=, ?page=, ?size=, ?sort=")
+    @Operation(summary = "Listar todas as publicações (Admin)", description = "Suporta filtros ?status=, ?professorId=, ?q=, ?page=, ?size=, ?sort=")
     public ResponseEntity<Page<PublicationResponse>> findAll(
             @RequestParam(required = false) PublicationStatus status,
             @RequestParam(required = false) Long professorId,
             @RequestParam(required = false) String q,
-            @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
-    ) {
+            @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return ResponseEntity.ok(publicationService.findAll(status, professorId, q, pageable));
     }
 
@@ -44,9 +42,8 @@ public class PublicationController {
     @PreAuthorize("hasRole('PROFESSOR')")
     @Operation(summary = "Listar as próprias publicações (Professor)")
     public ResponseEntity<Page<PublicationResponse>> findMyPublications(
-            @AuthenticationPrincipal Long professorId,
-            @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
-    ) {
+            @AuthenticationPrincipal(expression = "professorId") Long professorId,
+            @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return ResponseEntity.ok(publicationService.findMyPublications(professorId, pageable));
     }
 
@@ -55,8 +52,7 @@ public class PublicationController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESSOR')")
     @Operation(summary = "Visualizar uma publicação (Admin / dono)")
     public ResponseEntity<PublicationResponse> findById(
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         return ResponseEntity.ok(publicationService.findById(id));
     }
 
@@ -65,9 +61,8 @@ public class PublicationController {
     @PreAuthorize("hasRole('PROFESSOR')")
     @Operation(summary = "Cadastrar publicação (Professor)")
     public ResponseEntity<PublicationResponse> create(
-            @AuthenticationPrincipal Long professorId,
-            @Valid @RequestBody PublicationCreateRequest request
-    ) {
+            @AuthenticationPrincipal(expression = "professorId") Long professorId,
+            @Valid @RequestBody PublicationCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(publicationService.create(professorId, request));
     }
 }

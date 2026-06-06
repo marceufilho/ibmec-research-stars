@@ -29,11 +29,10 @@ public class ProfessorService {
     private final ProfessorPublicationsGateway publicationsGateway;
 
     public ProfessorService(
-        ProfessorRepository repository,
-        CurrentUserProvider currentUserProvider,
-        CourseGateway courseGateway,
-        ProfessorPublicationsGateway publicationsGateway
-    ) {
+            ProfessorRepository repository,
+            CurrentUserProvider currentUserProvider,
+            CourseGateway courseGateway,
+            ProfessorPublicationsGateway publicationsGateway) {
         this.repository = repository;
         this.currentUserProvider = currentUserProvider;
         this.courseGateway = courseGateway;
@@ -42,18 +41,22 @@ public class ProfessorService {
 
     public PagedResponse<ProfessorListItemResponse> list(Professor.Status status, String q, int page, int size) {
         var pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        var result = repository.findAll(ProfessorSpecifications.byFilters(status, q), pageable).map(ProfessorMapper::toListItem);
-        return new PagedResponse<>(result.getContent(), result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
+        var result = repository.findAll(ProfessorSpecifications.byFilters(status, q), pageable)
+                .map(ProfessorMapper::toListItem);
+        return new PagedResponse<>(result.getContent(), result.getNumber(), result.getSize(), result.getTotalElements(),
+                result.getTotalPages());
     }
 
+    @Transactional
     public ProfessorDetailResponse findById(Long id) {
         return ProfessorMapper.toDetail(getProfessorOrThrow(id));
     }
 
+    @Transactional
     public ProfessorDetailResponse findMe() {
         var userId = currentUserProvider.getCurrentUserId();
         var professor = repository.findByUserId(userId)
-            .orElseThrow(() -> new ProfessorNotFoundException("Professor not found for user: " + userId));
+                .orElseThrow(() -> new ProfessorNotFoundException("Professor not found for user: " + userId));
         return ProfessorMapper.toDetail(professor);
     }
 
